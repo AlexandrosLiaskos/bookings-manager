@@ -1,0 +1,574 @@
+:root {
+  --bg-color: #f5f5f5;
+  --text-color: #111;
+  --primary-color: #3b82f6;
+  --danger-color: #dc2626;
+  --success-color: #16a34a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+  background-color: white;
+  color: var(--text-color);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-fullscreen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: white;
+}
+
+/* Rotate 90 degrees on mobile portrait */
+@media (max-width: 768px) and (orientation: portrait) {
+  .app-fullscreen {
+    transform: rotate(90deg);
+    transform-origin: center center;
+    position: fixed;
+    width: 100vh;
+    height: 100vw;
+    top: 0;
+    left: 0;
+    margin-left: calc((100vw - 100vh) / 2);
+    margin-top: calc((100vh - 100vw) / 2);
+  }
+}
+
+h1, h2 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-weight: 500;
+  transition: all 0.2s;
+  outline: none;
+}
+
+button:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 2px;
+}
+
+input:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: -2px;
+}
+
+/* Login */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+}
+
+.login-form {
+  background: var(--glass-bg);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 320px;
+}
+
+.login-input {
+  background: var(--input-bg);
+  border: 1px solid var(--glass-border);
+  padding: 0.75rem;
+  border-radius: 6px;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.login-button {
+  background: var(--primary-color);
+  color: white;
+}
+
+.error-message {
+  color: var(--danger-color);
+  font-size: 0.875rem;
+}
+
+/* Table */
+.table-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #e5e7eb;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  background: #f9fafb;
+  flex-shrink: 0;
+}
+
+.table-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #111;
+  font-weight: 600;
+}
+
+.refresh-button {
+  background: white;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.refresh-button:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.table-wrapper {
+  flex: 1;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  background: white;
+}
+
+/* Excel-like Table */
+.excel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  background: white;
+  table-layout: fixed;
+}
+
+.excel-table thead {
+  background: #f9fafb;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.excel-table th {
+  padding: 0.6rem 1rem;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0.03em;
+  background: #f9fafb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.excel-table th.row-number,
+.excel-table td.row-number {
+  background: #f3f4f6;
+  color: #6b7280;
+  text-align: center;
+  font-weight: 600;
+  width: 50px;
+  border-right: 2px solid #d1d5db;
+  user-select: none;
+  font-size: 0.7rem;
+}
+
+.excel-table th.actions-header {
+  text-align: center;
+  width: 80px;
+}
+
+.excel-table tbody tr {
+  transition: background 0.1s;
+}
+
+.excel-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.excel-table td {
+  padding: 0;
+  border: 1px solid #e5e7eb;
+  background: white;
+  overflow: hidden;
+}
+
+.excel-cell {
+  padding: 0.6rem 1rem;
+  min-height: 40px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.excel-cell.editable:hover {
+  background: #eff6ff;
+  outline: 2px solid #111;
+  outline-offset: -2px;
+}
+
+.excel-cell.editing {
+  padding: 0;
+  background: white;
+}
+
+.excel-cell.read-only {
+  background: #f9fafb;
+  cursor: not-allowed;
+  color: #9ca3af;
+}
+
+.edit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: white;
+  min-width: 300px;
+}
+
+.diff-preview {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background: #f9fafb;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  border: 1px solid #e5e7eb;
+}
+
+.diff-old,
+.diff-new {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.diff-old {
+  border-left: 3px solid #dc2626;
+  padding-left: 0.5rem;
+}
+
+.diff-new {
+  border-left: 3px solid #16a34a;
+  padding-left: 0.5rem;
+}
+
+.diff-label {
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.diff-old .diff-label {
+  color: #dc2626;
+}
+
+.diff-new .diff-label {
+  color: #16a34a;
+}
+
+.diff-value {
+  color: #111;
+  word-break: break-word;
+  line-height: 1.3;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid;
+}
+
+.save-btn {
+  background: #16a34a;
+  color: white;
+  border-color: #16a34a;
+}
+
+.save-btn:hover {
+  background: #15803d;
+  border-color: #15803d;
+}
+
+.cancel-btn {
+  background: white;
+  color: #6b7280;
+  border-color: #d1d5db;
+}
+
+.cancel-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.cell-value {
+  display: block;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.4;
+  color: #111;
+  text-align: center;
+  font-size: 0.75rem;
+}
+
+.excel-input {
+  width: 100%;
+  height: 100%;
+  min-height: 40px;
+  padding: 0.6rem 1rem;
+  border: 2px solid #111;
+  background: white;
+  color: #111;
+  font-size: 0.75rem;
+  outline: none;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.actions-cell {
+  text-align: center;
+  padding: 0.35rem;
+  background: #f9fafb;
+  border-left: 2px solid #e5e7eb;
+}
+
+.delete-btn {
+  background: white;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  font-size: 1.1rem;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+  color: white;
+  border-color: #dc2626;
+}
+
+.edit-hint {
+  padding: 0.6rem 1rem;
+  background: #eff6ff;
+  border-top: 1px solid #bfdbfe;
+  color: #1e40af;
+  font-size: 0.8rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.edit-hint kbd {
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #374151;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.loading, .error, .empty {
+  padding: 3rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+.error {
+  color: #dc2626;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .table-header {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .table-header h2 {
+    font-size: 1rem;
+  }
+
+  .refresh-button {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.7rem;
+  }
+
+  .excel-table {
+    font-size: 0.8rem;
+  }
+
+  .excel-table th,
+  .excel-table td {
+    min-width: 100px;
+  }
+
+  .excel-table th.row-number,
+  .excel-table td.row-number {
+    width: 40px;
+    min-width: 40px;
+    font-size: 0.7rem;
+  }
+
+  .excel-table th.actions-header {
+    width: 60px;
+    min-width: 60px;
+  }
+
+  .excel-cell {
+    padding: 0.4rem 0.6rem;
+    min-height: 32px;
+  }
+
+  .excel-input {
+    min-height: 32px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .cell-value {
+    font-size: 0.8rem;
+  }
+
+  .delete-btn {
+    font-size: 1rem;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .edit-container {
+    min-width: 250px;
+    padding: 0.5rem;
+  }
+
+  .diff-preview {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .save-btn,
+  .cancel-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .edit-hint {
+    font-size: 0.7rem;
+    padding: 0.5rem;
+  }
+
+  .edit-hint kbd {
+    font-size: 0.7rem;
+    padding: 0.1rem 0.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .table-header {
+    padding: 0.4rem 0.5rem;
+  }
+
+  .table-header h2 {
+    font-size: 0.9rem;
+  }
+
+  .refresh-button {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .excel-table {
+    font-size: 0.75rem;
+  }
+
+  .excel-table th,
+  .excel-table td {
+    min-width: 80px;
+  }
+
+  .excel-table th.row-number,
+  .excel-table td.row-number {
+    width: 35px;
+    min-width: 35px;
+  }
+
+  .excel-cell {
+    padding: 0.35rem 0.5rem;
+    min-height: 30px;
+  }
+
+  .excel-input {
+    min-height: 30px;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .cell-value {
+    font-size: 0.75rem;
+  }
+
+  .edit-container {
+    min-width: 200px;
+    padding: 0.4rem;
+  }
+
+  .save-btn,
+  .cancel-btn {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.75rem;
+  }
+}
