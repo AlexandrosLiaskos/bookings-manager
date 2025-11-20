@@ -225,6 +225,12 @@ input:focus-visible {
   border: 1px solid #e5e7eb;
   background: white;
   overflow: hidden;
+  position: relative;
+}
+
+.excel-table td.editing-cell {
+  overflow: visible;
+  z-index: 50;
 }
 
 .excel-cell {
@@ -247,6 +253,8 @@ input:focus-visible {
 .excel-cell.editing {
   padding: 0;
   background: white;
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .excel-cell.read-only {
@@ -262,6 +270,8 @@ input:focus-visible {
   padding: 0.75rem;
   background: white;
   min-width: 300px;
+  position: relative;
+  z-index: 100;
 }
 
 .diff-preview {

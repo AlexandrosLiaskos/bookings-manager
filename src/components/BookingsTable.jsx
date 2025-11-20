@@ -127,7 +127,7 @@ export default function BookingsTable() {
                   return (
                     <td
                       key={`${booking.id}-${header}`}
-                      className={`excel-cell editable ${isEditing ? 'editing' : ''}`}
+                      className={`excel-cell editable ${isEditing ? 'editing editing-cell' : ''}`}
                       onClick={() => !isEditing && startEditing(booking.id, header, booking[header])}
                     >
                       {isEditing ? (
