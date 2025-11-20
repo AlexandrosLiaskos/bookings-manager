@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
+import * as XLSX from 'xlsx'
 
 export default function BookingsTable() {
   const [bookings, setBookings] = useState([])
@@ -33,6 +34,15 @@ export default function BookingsTable() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(bookings)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Bookings')
+
+    const date = new Date().toISOString().split('T')[0]
+    XLSX.writeFile(workbook, `bookings_${date}.xlsx`)
   }
 
   const handleDelete = async (id) => {
@@ -100,7 +110,10 @@ export default function BookingsTable() {
       <div className="table-container">
         <div className="table-header">
           <h2>Bookings ({bookings.length})</h2>
-          <button onClick={fetchBookings} className="refresh-button">↻ Refresh</button>
+          <div className="header-actions">
+            <button onClick={exportToExcel} className="export-button">📊 Export Excel</button>
+            <button onClick={fetchBookings} className="refresh-button">↻ Refresh</button>
+          </div>
         </div>
         <div className="table-wrapper">
           <table className="excel-table">
