@@ -105,6 +105,13 @@ export default function BookingsTable() {
   const allHeaders = bookings.length > 0 ? Object.keys(bookings[0]) : []
   const headers = allHeaders.filter(h => h !== 'id' && h !== 'created_at')
 
+  // Always sort by created_at (oldest to newest)
+  const sortedBookings = [...bookings].sort((a, b) => {
+    const dateA = new Date(a.created_at)
+    const dateB = new Date(b.created_at)
+    return dateA - dateB
+  })
+
   return (
     <>
       <div className="table-container">
@@ -127,7 +134,7 @@ export default function BookingsTable() {
               </tr>
             </thead>
             <tbody>
-              {bookings.map((booking, index) => (
+              {sortedBookings.map((booking, index) => (
                 <tr key={booking.id} onClick={() => openEditSidebar(booking)} className="table-row">
                   <td className="row-number">{index + 1}</td>
                   {headers.map(header => (
