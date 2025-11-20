@@ -5,8 +5,9 @@ export default function BookingsTable() {
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [editingCell, setEditingCell] = useState(null) // { rowId, field, originalValue }
-  const [editValue, setEditValue] = useState('')
+  const [editingRow, setEditingRow] = useState(null)
+  const [editValues, setEditValues] = useState({})
+  const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     fetchBookings()
@@ -50,45 +51,40 @@ export default function BookingsTable() {
     }
   }
 
-  const startEditing = (rowId, field, currentValue) => {
-    setEditingCell({ rowId, field, originalValue: currentValue })
-    setEditValue(currentValue || '')
+  const openEditSidebar = (booking) => {
+    setEditingRow(booking)
+    setEditValues({ ...booking })
   }
 
-  const cancelEditing = () => {
-    setEditingCell(null)
-    setEditValue('')
+  const closeSidebar = () => {
+    setEditingRow(null)
+    setEditValues({})
   }
 
-  const saveEdit = async () => {
-    if (!editingCell) return
+  const handleFieldChange = (field, value) => {
+    setEditValues(prev => ({ ...prev, [field]: value }))
+  }
+
+  const saveChanges = async () => {
+    if (!editingRow) return
 
     try {
-      const { rowId, field } = editingCell
-      const updatedData = { [field]: editValue }
-
+      setIsSaving(true)
       const { error } = await supabase
         .from('bookings')
-        .update(updatedData)
-        .eq('id', rowId)
+        .update(editValues)
+        .eq('id', editingRow.id)
 
       if (error) throw error
 
       setBookings(bookings.map(b =>
-        b.id === rowId ? { ...b, [field]: editValue } : b
+        b.id === editingRow.id ? editValues : b
       ))
-      setEditingCell(null)
-      setEditValue('')
+      closeSidebar()
     } catch (err) {
       alert('Error updating: ' + err.message)
-    }
-  }
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
-      saveEdit()
-    } else if (e.key === 'Escape') {
-      cancelEditing()
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -96,94 +92,91 @@ export default function BookingsTable() {
   if (error) return <div className="error">Error: {error}</div>
   if (bookings.length === 0) return <div className="empty">No bookings found.</div>
 
-  // Get headers and filter out 'id' and 'created_at'
   const allHeaders = bookings.length > 0 ? Object.keys(bookings[0]) : []
   const headers = allHeaders.filter(h => h !== 'id' && h !== 'created_at')
 
   return (
-    <div className="table-container">
-      <div className="table-header">
-        <h2>Bookings ({bookings.length})</h2>
-        <button onClick={fetchBookings} className="refresh-button">↻ Refresh</button>
-      </div>
-      <div className="table-wrapper">
-        <table className="excel-table">
-          <thead>
-            <tr>
-              <th className="row-number">#</th>
-              {headers.map(header => (
-                <th key={header}>{header}</th>
-              ))}
-              <th className="actions-header">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.map((booking, index) => (
-              <tr key={booking.id}>
-                <td className="row-number">{index + 1}</td>
-                {headers.map(header => {
-                  const isEditing = editingCell?.rowId === booking.id && editingCell?.field === header
-
-                  return (
-                    <td
-                      key={`${booking.id}-${header}`}
-                      className={`excel-cell editable ${isEditing ? 'editing editing-cell' : ''}`}
-                      onClick={() => !isEditing && startEditing(booking.id, header, booking[header])}
-                    >
-                      {isEditing ? (
-                        <div className="edit-container">
-                          <div className="diff-preview">
-                            <div className="diff-old">
-                              <span className="diff-label">Old:</span>
-                              <span className="diff-value">{String(editingCell.originalValue || '')}</span>
-                            </div>
-                            <div className="diff-new">
-                              <span className="diff-label">New:</span>
-                              <span className="diff-value">{String(editValue || '')}</span>
-                            </div>
-                          </div>
-                          <input
-                            type="text"
-                            value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            className="excel-input"
-                            autoFocus
-                          />
-                          <div className="edit-actions">
-                            <button onClick={saveEdit} className="save-btn" title="Save (Ctrl+Enter)">
-                              ✓ Save
-                            </button>
-                            <button onClick={cancelEditing} className="cancel-btn" title="Cancel (Esc)">
-                              ✕ Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <span className="cell-value">{String(booking[header] || '')}</span>
-                      )}
-                    </td>
-                  )
-                })}
-                <td className="actions-cell">
-                  <button
-                    onClick={() => handleDelete(booking.id)}
-                    className="delete-btn"
-                    title="Delete row"
-                  >
-                    🗑️
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {editingCell && (
-        <div className="edit-hint">
-          Press <kbd>Ctrl+Enter</kbd> to save • <kbd>Esc</kbd> to cancel • Or use the buttons
+    <>
+      <div className="table-container">
+        <div className="table-header">
+          <h2>Bookings ({bookings.length})</h2>
+          <button onClick={fetchBookings} className="refresh-button">↻ Refresh</button>
         </div>
+        <div className="table-wrapper">
+          <table className="excel-table">
+            <thead>
+              <tr>
+                <th className="row-number">#</th>
+                {headers.map(header => (
+                  <th key={header}>{header}</th>
+                ))}
+                <th className="actions-header">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bookings.map((booking, index) => (
+                <tr key={booking.id} onClick={() => openEditSidebar(booking)} className="table-row">
+                  <td className="row-number">{index + 1}</td>
+                  {headers.map(header => (
+                    <td key={`${booking.id}-${header}`} className="table-cell">
+                      <span className="cell-value">{String(booking[header] || '')}</span>
+                    </td>
+                  ))}
+                  <td className="actions-cell" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => handleDelete(booking.id)}
+                      className="delete-btn"
+                      title="Delete row"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {editingRow && (
+        <>
+          <div className="sidebar-overlay" onClick={closeSidebar}></div>
+          <div className="edit-sidebar">
+            <div className="sidebar-header">
+              <h3>Edit Row</h3>
+              <button onClick={closeSidebar} className="close-btn">✕</button>
+            </div>
+            <div className="sidebar-content">
+              {allHeaders.map(header => (
+                <div key={header} className="field-group">
+                  <label className="field-label">{header}</label>
+                  {header === 'id' || header === 'created_at' ? (
+                    <input
+                      type="text"
+                      value={editValues[header] || ''}
+                      disabled
+                      className="field-input disabled"
+                    />
+                  ) : (
+                    <textarea
+                      value={editValues[header] || ''}
+                      onChange={(e) => handleFieldChange(header, e.target.value)}
+                      className="field-input"
+                      rows="2"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="sidebar-footer">
+              <button onClick={closeSidebar} className="cancel-button">Cancel</button>
+              <button onClick={saveChanges} className="save-button" disabled={isSaving}>
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </>
       )}
-    </div>
+    </>
   )
 }
