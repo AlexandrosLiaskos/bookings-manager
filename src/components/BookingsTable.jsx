@@ -20,7 +20,7 @@ export default function BookingsTable() {
       const { data, error } = await supabase
         .from('bookings')
         .select('*')
-        .order('created_at', { ascending: true })
+        .order('DATE', { ascending: true })
 
       if (error) {
         console.error('Supabase error:', error)
@@ -105,10 +105,10 @@ export default function BookingsTable() {
   const allHeaders = bookings.length > 0 ? Object.keys(bookings[0]) : []
   const headers = allHeaders.filter(h => h !== 'id' && h !== 'created_at')
 
-  // Always sort by created_at (oldest to newest)
+  // Always sort by DATE (oldest to newest)
   const sortedBookings = [...bookings].sort((a, b) => {
-    const dateA = new Date(a.created_at)
-    const dateB = new Date(b.created_at)
+    const dateA = new Date(a.DATE)
+    const dateB = new Date(b.DATE)
     return dateA - dateB
   })
 
